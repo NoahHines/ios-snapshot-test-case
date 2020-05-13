@@ -24,38 +24,20 @@ public extension FBSnapshotTestCase {
     FBSnapshotVerifyViewOrLayer(layer, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
   }
 
-
     @available(iOS 13, *)
     func FBSnapshotVerifyViewForLightDarkMode(_ view: UIView, identifier: String? = nil, delay: TimeInterval = 0, perPixelTolerance: CGFloat = 0, overallTolerance: CGFloat = 0, file: StaticString = #file, line: UInt = #line) {
-      let viewController = UIViewController()
-      viewController.view.addSubview(view)
+        // Take snapshot in light mode
+        view.overrideUserInterfaceStyle = .light
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: delay))
 
-      FBSnapshotVerifyViewControllerForLightDarkMode(viewController, identifier: identifier, delay: delay, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
-    }
+        FBSnapshotVerifyView(view, identifier: identifier, perPixelTolerance: 0, overallTolerance: 0, file: file, line: line)
 
-    @available(iOS 13, *)
-    func FBSnapshotVerifyViewControllerForLightDarkMode(_ viewController: UIViewController, identifier: String? = nil, delay: TimeInterval = 0, perPixelTolerance: CGFloat = 0, overallTolerance: CGFloat = 0, file: StaticString = #file, line: UInt = #line) {
-      let navigationController = UINavigationController(rootViewController: viewController)
-      let window = UIWindow()
-      window.rootViewController = navigationController
-      window.makeKeyAndVisible()
+        // Take snapshot in dark mode
+        view.overrideUserInterfaceStyle = .dark
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: delay))
 
-      // Take snapshot in light mode
-      navigationController.overrideUserInterfaceStyle = .light
-      RunLoop.main.run(until: Date(timeIntervalSinceNow: delay))
-
-      FBSnapshotVerifyView(navigationController.view, identifier: identifier, perPixelTolerance: 0, overallTolerance: 0, file: file, line: line)
-
-      // Take snapshot in dark mode
-      window.rootViewController = nil
-      window.rootViewController = navigationController
-      navigationController.overrideUserInterfaceStyle = .dark
-      RunLoop.main.run(until: Date(timeIntervalSinceNow: delay))
-
-      let darkId = [identifier, "dark"].compactMap { $0 }.joined(separator: "_")
-      FBSnapshotVerifyView(navigationController.view, identifier: darkId, suffixes: ["Dark"], perPixelTolerance: 0, overallTolerance: 0, file: file, line: line)
-
-      window.rootViewController = nil
+        let darkId = [identifier, "dark"].compactMap { $0 }.joined(separator: "_")
+        FBSnapshotVerifyView(view, identifier: darkId, suffixes: ["Dark"], perPixelTolerance: 0, overallTolerance: 0, file: file, line: line)
     }
 
   private func FBSnapshotVerifyViewOrLayer(_ viewOrLayer: AnyObject, identifier: String? = nil, suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(), perPixelTolerance: CGFloat = 0, overallTolerance: CGFloat = 0, file: StaticString = #file, line: UInt = #line) {

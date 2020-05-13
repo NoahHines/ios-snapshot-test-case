@@ -92,11 +92,12 @@
 - (NSString *)snapshotVerifyViewOrLayer:(id)viewOrLayer
                              identifier:(NSString *)identifier
                                suffixes:(NSOrderedSet *)suffixes
+                     userInterfaceStyle:(UIUserInterfaceStyle)userInterfaceStyle
                       perPixelTolerance:(CGFloat)perPixelTolerance
                        overallTolerance:(CGFloat)overallTolerance
               defaultReferenceDirectory:(NSString *)defaultReferenceDirectory
               defaultImageDiffDirectory:(NSString *)defaultImageDiffDirectory
-{
+API_AVAILABLE(ios(12.0)){
     if (viewOrLayer == nil) {
         return @"Object to be snapshotted must not be nil";
     }
@@ -119,7 +120,7 @@
     NSMutableArray *errors = [NSMutableArray array];
 
     if (self.recordMode) {
-        NSString *referenceImagesDirectory = [NSString stringWithFormat:@"%@%@", referenceImageDirectory, suffixes.firstObject];
+        NSString *referenceImagesDirectory = [NSString stringWithFormat:@"%@%s%@", referenceImageDirectory, userInterfaceStyle == UIUserInterfaceStyleDark ? "/Dark/" : "", suffixes.firstObject];
         BOOL referenceImageSaved = [self _compareSnapshotOfViewOrLayer:viewOrLayer referenceImagesDirectory:referenceImagesDirectory imageDiffDirectory:imageDiffDirectory identifier:(identifier) perPixelTolerance:perPixelTolerance overallTolerance:overallTolerance error:&error];
         if (!referenceImageSaved) {
             [errors addObject:error];
